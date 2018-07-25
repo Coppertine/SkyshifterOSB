@@ -51,6 +51,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Hitobjects.cs" />
+    <Compile Include="StoryboardManager.cs" />
+  </ItemGroup>
   <ItemGroup />
 </Project>
