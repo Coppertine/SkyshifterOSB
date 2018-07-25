@@ -19,6 +19,8 @@ namespace StorybrewScripts
         public override void Generate()
         {
             ImportAssets();
+						ExportAssets();
+						Log("Done! (" + System.DateTime.Now.TimeOfDay + ")");
         }
         void ImportAssets()
         {
@@ -49,7 +51,39 @@ namespace StorybrewScripts
                 return;
             }
             //After every instructions are done :)
-            Log("Done! (" + System.DateTime.Now.TimeOfDay + ")");
+            
         }
-    }
-}
+				
+				void ExportAssets()
+				{
+					string dirPath = MapsetPath + "/sb/";
+					
+					if(System.IO.Directory.Exists(dirPath))
+          {
+						//get list of files from sb folder
+						string[] files = System.IO.Directory.GetFiles(dirPath);
+						 foreach(var file in files)
+                {
+                    var fileName = System.IO.Path.GetFileName(file);
+                    var destFile = System.IO.Path.Combine(gitSpritesPath, fileName);
+                    //Check if the file is already existing in the mapset sprite folder, if yes it copy the file!
+                    if(!System.IO.File.Exists(destFile))
+                    {
+                        System.IO.File.Copy(file, destFile, true);
+                        Log("Added " + fileName + " To " + gitSpritesPath);
+                    } 
+                }
+            }
+            else
+            {
+                System.IO.Directory.CreateDirectory(gitSpritesPath);
+                Log("Created sprite directory in " + gitSpritesPath);
+                ExportAssets();
+                return;
+            }
+						
+						
+					}
+				
+				}
+ }
