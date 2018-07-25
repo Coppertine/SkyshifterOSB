@@ -23,7 +23,7 @@ namespace StorybrewScripts
         void ImportAssets()
         {
             //set the direction Path to copy assets
-            string dirPath = MapsetPath + "/sb/sprites";
+            string dirPath = MapsetPath + "/sb/";
             //Check if the direction path exist, if not create a new one and restart the function
             if(System.IO.Directory.Exists(dirPath))
             {
