@@ -19,7 +19,7 @@ namespace StorybrewScripts
         public override void Generate()
         {
             ImportAssets();
-						ExportAssets();
+						//ExportAssets();
 						Log("Done! (" + System.DateTime.Now.TimeOfDay + ")");
         }
         void ImportAssets()
@@ -62,7 +62,33 @@ namespace StorybrewScripts
           {
 						//get list of files from sb folder
 						string[] files = System.IO.Directory.GetFiles(dirPath);
-						 foreach(var file in files)
+						string[] directories = System.IO.Directory.GetDirectories(dirPath);
+						foreach(var folder in directories)
+						{
+						//Get each folder's files
+							foreach(var file in System.IO.Directory.GetFiles(folder))
+                {
+                    var fileName = System.IO.Path.GetFileName(file);
+										var destFolder = System.IO.Path.Combine(gitSpritesPath,folder);
+                    var destFile = System.IO.Path.Combine(destFolder, fileName);
+                    //Check if the file is already existing in the mapset sprite folder, if yes it copy the file!
+                    if(!System.IO.File.Exists(destFile))
+                    {
+                        System.IO.File.Copy(file, destFile, true);
+                        Log("Added " + fileName + " To " + gitSpritesPath);
+                    } 
+										 else
+											{
+													System.IO.Directory.CreateDirectory(folder);
+													Log("Created sprite directory in " + folder);
+													ExportAssets();
+													return;
+											}
+                }
+            }
+           
+					 
+					 	foreach(var file in files)
                 {
                     var fileName = System.IO.Path.GetFileName(file);
                     var destFile = System.IO.Path.Combine(gitSpritesPath, fileName);
@@ -71,19 +97,21 @@ namespace StorybrewScripts
                     {
                         System.IO.File.Copy(file, destFile, true);
                         Log("Added " + fileName + " To " + gitSpritesPath);
-                    } 
+                    } else
+												{
+														System.IO.Directory.CreateDirectory(gitSpritesPath);
+														Log("Created sprite directory in " + gitSpritesPath);
+														ExportAssets();	
+														return;
+												}
                 }
+					 
+						}
+						 
             }
-            else
-            {
-                System.IO.Directory.CreateDirectory(gitSpritesPath);
-                Log("Created sprite directory in " + gitSpritesPath);
-                ExportAssets();
-                return;
-            }
+            
 						
 						
 					}
 				
-				}
- }
+}
