@@ -36,8 +36,10 @@ namespace StorybrewScripts
             GenerateMidTransition(161569);
             GenerateEndTransition(184158);
 
+            //Kiai2
             GenerateBackground(281569, 326746);
-            
+
+            GenerateCar(284393);
             GenerateParticles(281569, 304158);
             GenerateParticles(304158, 326746, true);
             GenerateCursorFollow(281569, 302746);
@@ -126,6 +128,23 @@ namespace StorybrewScripts
             sprite.Additive(sprite.CommandsStartTime, sprite.CommandsEndTime);
         }
 
+        public void GenerateCar(double time) {
+            var sprite = layer.CreateSprite("sb/mostImportantSpriteEUW.png", OsbOrigin.Centre, new Vector2(720, 500));
+
+            var currentTime = time;
+            while (sprite.PositionAt(currentTime).Y > -20) {
+                var longHit = IsStrongHit(currentTime);
+
+                var yPos = sprite.PositionAt(currentTime).Y;
+                var yRot = sprite.RotationAt(currentTime);
+
+                sprite.MoveY(longHit ? OsbEasing.OutCubic : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yPos, yPos - 40);
+                sprite.Rotate(longHit ? OsbEasing.Out : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yRot, yRot + Math.PI * 0.25f);
+
+                currentTime += beatduration;
+            }
+        }
+
         public void GenerateParticles(double startTime, double endTime, bool fromTop = false) { 
             using (var pool = new OsbSpritePool(layer, "sb/pixel.png", OsbOrigin.Centre, (sprite, sTime, eTime) => {
                 sprite.Fade(sTime, Random(0.4f, 0.95f));
@@ -164,7 +183,7 @@ namespace StorybrewScripts
                         var yPos = sprite.PositionAt(currentTime).Y;
                         var yRot = sprite.RotationAt(currentTime);
 
-                        sprite.MoveY(longHit ? OsbEasing.OutCubic : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yPos, yPos + moveSpeed);
+                        sprite.MoveY(longHit ? OsbEasing.OutCubic : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yPos, yPos + moveSpeed * (longHit ? 1.1 : 1));
                         sprite.Rotate(longHit ? OsbEasing.Out : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yRot, yRot + Math.PI * 0.25f);
 
                         currentTime += beatduration;
@@ -233,7 +252,7 @@ namespace StorybrewScripts
             bgBlur.Fade(time + 22058, 1);
 
             //edges
-            var off = 80; //move the outer boundaries back to prevent caps caused by the rotation
+            var off = 84; //move the outer boundaries back to prevent caps caused by the rotation
             var positions = new Vector2[] { new Vector2(-107 - off, 0 - off), new Vector2(757 + off, 0 - off), new Vector2(757 + off, 480 + off), new Vector2(-107 - off, 480 + off) };
             for (int i = 0; i < 4; i++) {
                 var width = i % 2 == 0 ? 600 : 600;
