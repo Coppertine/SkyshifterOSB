@@ -28,22 +28,17 @@ namespace StorybrewScripts
             var elementScaleX = scaleX/xElements;
             var elementScaleY = scaleY/yElements;
 
-            var delay = 0d;
+            var delayMultiplier = 80f;
+            var maxDelay = Math.Abs(xElements + yElements) * delayMultiplier; //used to invert our function
 
-            for(float x = startPosX; x < (startPosX + scaleX) - elementScaleX; x += elementScaleX)
-            {
-                for(float y = startPosY; y < (startPosY + scaleY) - elementScaleY; y += elementScaleY)
-                {
-                    var rectNumberX = (x - startPosX) / elementScaleX;
-                    var rectNumberY = (y - startPosY) / elementScaleY;
-                    var sprite = GetLayer("Rectangle").CreateSprite("sb/pixel.png", OsbOrigin.TopLeft, new Vector2(x, y));
-                    sprite.Fade(startTime + delay, startTime + delay + 300, 0, 0.5);
-                    sprite.Fade(endTime, endTime, 0.5, 1);
-                    sprite.ScaleVec(startTime, elementScaleX, elementScaleY);
-
-                    Log("x =" + rectNumberX.ToString() + " y =" + rectNumberY.ToString());
-
-                    delay = Math.Abs(rectNumberX - rectNumberY) * 100;
+            for (int x = 0; x < xElements; x++) {
+                for (int y = 0; y < yElements; y++) {
+                    var sTime = maxDelay - Math.Abs(x - xElements / 2f + y - yElements / 2f) * delayMultiplier; //get the startTime of the indiviual rect
+                    
+                    var sprite = GetLayer("Rectangle").CreateSprite("sb/pixel.png", OsbOrigin.TopLeft, new Vector2(x * elementScaleX, y * elementScaleY) + position);
+                    sprite.Fade(sTime, sTime + 300, 0, 0.5f);
+                    sprite.Fade(endTime, 1);
+                    sprite.ScaleVec(sTime, elementScaleX, elementScaleY);
                 }
             }
         }
