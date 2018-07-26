@@ -6,6 +6,7 @@ using StorybrewCommon.Storyboarding;
 using StorybrewCommon.Storyboarding.Util;
 using StorybrewCommon.Subtitles;
 using StorybrewCommon.Util;
+using StorybrewCommon.Animations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +19,7 @@ namespace StorybrewScripts
         public List<OsbSprite> letterList = new List<OsbSprite>();
         public override void Generate()
         {
-		    GenerateCredit("SAKURABURST", 7687, 16158, 100, 320, 220);
-            
+		    GenerateCredit("SAKURABURST", 7687, 16158, 60, 320, 220);
         }
 
         private void GenerateCredit(string text, int startTime, int endTime, int size, int posX, int posY)
@@ -34,15 +34,12 @@ namespace StorybrewScripts
 
             var currentNumber = letterPicker(0, text.Length);
             var layer = GetLayer("Credits");
-
             var letterX = 0f;
             float letterY = posY;
-
             var lineWidth = 0f;
             var lineHeight = 0f;
-
             var scale = 0.5f;
-
+        
             foreach(var letter in text)
             {
                 var texture = font.GetTexture(letter.ToString());
@@ -56,11 +53,12 @@ namespace StorybrewScripts
             foreach(var letter in text)
             {
                 var texture = font.GetTexture(letter.ToString());
+                var fade = 0f;
                 
                 if(!texture.IsEmpty)
                 {
-                    var switchNumber = Random(10, 50);
-                    var switchDuration = 50 * switchNumber;
+                    var switchNumber = Random(10, 30);
+                    double switchDuration = 50 * switchNumber;
                     var letterStart = startTime - switchDuration;
 
                     var position = new Vector2(letterX, letterY)
@@ -68,13 +66,14 @@ namespace StorybrewScripts
 
                     var sprite = GetLayer("Credits").CreateSprite(texture.Path, OsbOrigin.Centre, position);
                     
-                    for(int i = letterStart; i < startTime + switchDuration; i += 50)
+                    for(double i = letterStart; i < startTime + switchDuration; i += 50)
                     {
                         var newNumber = letterPicker(currentNumber, text.Length);
-                        spawnCharacter(newNumber, i, i + 50, position, scale);
-                        currentNumber = newNumber;
-                    }
+                        spawnCharacter(newNumber, i, i + 50, position, scale, fade);
 
+                        currentNumber = newNumber;
+                        fade += 1.0f/(switchNumber*2);
+                    }
                     sprite.Fade(startTime + switchDuration, endTime, 1, 1);
                     sprite.Scale(startTime + switchDuration, scale);
                 }
@@ -95,11 +94,11 @@ namespace StorybrewScripts
             }
         }
 
-        private void spawnCharacter(int spriteIndex, int startTime, int endTime, Vector2 position, float scale)
+        private void spawnCharacter(int spriteIndex, double startTime, double endTime, Vector2 position, float scale, float Fade)
         {
             var sprite = GetLayer("").CreateSprite(letterList[spriteIndex].TexturePath, OsbOrigin.Centre, position);
             sprite.Scale(startTime, scale);
-            sprite.Fade(startTime, endTime, 1, 1);
+            sprite.Fade(startTime, endTime, Fade, Fade);
         }
     }
 }
