@@ -19,8 +19,6 @@ namespace StorybrewScripts
         double offset;
         FontGenerator font;
 
-        double[] bookmarksKiai1;
-
         public override void Generate() {
             //init
             layer = GetLayer("");
@@ -38,11 +36,12 @@ namespace StorybrewScripts
             GenerateMidTransition(161569);
             GenerateEndTransition(184158);
 
-            //Kiai2 TODO add additional effects to convey progression
             GenerateBackground(281569, 326746);
             
             GenerateParticles(281569, 304158);
             GenerateParticles(304158, 326746, true);
+            GenerateCursorFollow(281569, 302746);
+            GenerateCursorFollow(304158, 323746);
             GenerateStrongHits(282628, 325334);
 
             GenerateStartTransition(258981);
@@ -51,7 +50,11 @@ namespace StorybrewScripts
 
             var vignette = layer.CreateSprite("sb/vig.png"); //TODO remove this sprite in favor of a global vignette manager 
             vignette.Scale(117805, 480.0f/1080);
-            vignette.Fade(325334, .9f);
+            vignette.Fade(117805, .9f);
+            vignette.Fade(184158 + 1411, 0f);
+
+            vignette.Fade(281569, .9f);
+            vignette.Fade(325334 + 1411, 0f);
         }
 
         public void GenerateBackground(double startTime, double endTime) { 
@@ -69,10 +72,8 @@ namespace StorybrewScripts
             var rotate = .01f;
             for (var time = startTime; time < endTime - beatduration * 5; time += beatduration) {
                 
-                if (time > 313864 && time < 314922) { //This is a silent part in the second kiai. No movement wanted
-                    time += beatduration;
+                if (time > 313864 && time < 314922) //This is a silent part in the second kiai. No movement wanted
                     continue;
-                }
 
                 var position = new Vector2(320, 240) + new Vector2((float)Random(-movement, movement), (float)Random(-movement, movement)) * (IsStrongHit(time) ? 10f : 1f);
                 var rotation = (float)Random(-rotate, rotate) * (IsStrongHit(time) ? 5f : 1f);
@@ -88,43 +89,64 @@ namespace StorybrewScripts
 
         #region kiai effects
 
-        public void FlashPatternTight(OsbSprite sprite, float[] pattern, double startTime, double endTime) {
-            var beatDur = Beatmap.GetTimingPointAt((int)startTime).BeatDuration;
+        public void GenerateCursorFollow(double startTime, double endTime) {
+            var sprite = layer.CreateSprite("sb/spotLight.png");
+            sprite.ScaleVec(startTime, 1f, 4f);
 
-            var time = startTime;
-            var index = -1;
-            while (time < endTime - 1) {
-                var currTime = time;
-                if(index == pattern.Length - 1)
-                    index = -1;
-                index++;
+            OsuHitObject prev = null;
+            foreach (var hObj in Beatmap.HitObjects) {
                 
-                time += beatDur * pattern[index];
+                if(hObj.StartTime < startTime || hObj.StartTime > endTime)
+                    continue;
 
-                sprite.Fade(currTime, Math.Min(time, endTime), 1f, 0f);
+                if(prev != null) {
+                    sprite.Move(OsbEasing.InSine, prev.EndTime, hObj.StartTime, prev.EndPosition, hObj.Position);
+                    
+                    if(hObj is OsuSlider)
+                        sprite.Move(hObj.StartTime, hObj.EndTime, hObj.Position, hObj.EndPosition);
+
+                    if(prev.ColorIndex != hObj.ColorIndex)
+                        sprite.Color(hObj.StartTime, hObj.Color);
+                }
+                    
+                prev = hObj;
             }
+
+            for (var time = startTime; time < endTime; time += beatduration) {
+
+                if (time > 313864 && time < 314922) //This is a silent part in the second kiai. No movement wanted
+                    continue;
+
+                var rotation = Random(0.3f, 0.8f) * Random(0, 2) == 0 ? 1 : -1;
+                
+                sprite.Fade(OsbEasing.InCubic, time, time + beatduration, .8f, 0f);
+                sprite.Rotate(OsbEasing.OutElasticQuarter, time, time + beatduration, sprite.RotationAt(time), sprite.RotationAt(time) + rotation);
+            }
+
+            sprite.Additive(sprite.CommandsStartTime, sprite.CommandsEndTime);
         }
 
         public void GenerateParticles(double startTime, double endTime, bool fromTop = false) { 
             using (var pool = new OsbSpritePool(layer, "sb/pixel.png", OsbOrigin.Centre, (sprite, sTime, eTime) => {
-                sprite.Fade(sTime, Random(0.6f, 0.95f));
-                sprite.Scale(sTime, Random(50f, 100f));
+                sprite.Fade(sTime, Random(0.4f, 0.95f));
+                sprite.Scale(sTime, Random(30f, 100f));
                 sprite.MoveX(sTime, Random(-107, 757));
 
-                sprite.Additive(sTime, eTime);
-
-                if(eTime > endTime) //Hide sprites if they cross the end time
+                if(eTime > endTime - beatduration * 4) //Hide sprites if they cross the end time
                     sprite.Fade(endTime, 0f);
 
             })){
-                for (var sTime = (double)startTime; sTime <= endTime - beatduration * 4; sTime += beatduration) {
-                    var baseSpeed = Random(40, 100);
-                    var eTime = sTime + 600f / baseSpeed * beatduration;
+                for (var sTime = (double)startTime; sTime <= endTime - beatduration * 4; sTime += beatduration / 2f) {
+                    var baseSpeed = Random(30, 140);
+                    var eTime = sTime + Math.Ceiling(620f / baseSpeed) * beatduration;
+
+                    if(eTime > 313864 && sTime < 314922) //Add bonus time for the movement stop section in the second kiai
+                        eTime += 1058 * 2;
 
                     var sprite = pool.Get(sTime, eTime);
 
                     var moveSpeed = baseSpeed * (fromTop ? 1 : -1);
-                    var currentTime = sTime;
+                    var currentTime = sTime + (sTime - offset) % beatduration;
 
                     sprite.MoveY(sTime, fromTop ? -60 : 540);
                     while(fromTop ? sprite.PositionAt(currentTime).Y < 540 : sprite.PositionAt(currentTime).Y > -60) {
@@ -134,6 +156,9 @@ namespace StorybrewScripts
                             continue;
                         }
 
+                        if (fromTop && currentTime > endTime - beatduration * 4) //Kiai fading out, stop movement at once (sprite needs to stay for a bit longer)
+                            break;
+
                         var longHit = IsStrongHit(currentTime);
 
                         var yPos = sprite.PositionAt(currentTime).Y;
@@ -141,9 +166,6 @@ namespace StorybrewScripts
 
                         sprite.MoveY(longHit ? OsbEasing.OutCubic : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yPos, yPos + moveSpeed);
                         sprite.Rotate(longHit ? OsbEasing.Out : OsbEasing.OutExpo, currentTime, currentTime + beatduration, yRot, yRot + Math.PI * 0.25f);
-                        
-                        if(fromTop && currentTime > endTime - beatduration * 4) //Kiai fading out, stop movement at once (sprite needs to stay for a bit longer)
-                            break;
 
                         currentTime += beatduration;
                     }
@@ -218,9 +240,9 @@ namespace StorybrewScripts
                 var height = off + (i % 2 == 0 ? 140 : 864 / 2f);
 
                 var sprite = layer.CreateSprite("sb/pixel.png", OsbOrigin.TopCentre);
-                sprite.Move(time, time + 22058, positions[i], Vector2.Lerp(positions[i], positions[i == 3 ? 0 : (i + 1)], 0.5f));
+                sprite.Move(OsbEasing.InOutSine, time, time + 22058, positions[i], Vector2.Lerp(positions[i], positions[i == 3 ? 0 : (i + 1)], 0.5f));
                 sprite.Rotate(time, time + 22058, Math.PI / 2f * i - Math.PI / 4f, Math.PI / 2f * i);
-                sprite.ScaleVec(OsbEasing.InQuad, time, time + 22058, width, off * 1.4f, width, height);
+                sprite.ScaleVec(OsbEasing.InCirc, time, time + 22058, width, off * 1.4f, width, height);
             }
 
             //transition square 140393 - 117805
@@ -250,12 +272,16 @@ namespace StorybrewScripts
             flash.Fade(OsbEasing.In, time + 1412, time + 2118, 1f, 0f);
         }
 
-        public void GenerateEndTransition(double time) { //TODO add "yours and mine" lyrics line in the middle of the transition
+        public void GenerateEndTransition(double time) {
+            var text = layer.CreateSprite("sb/lyrics/_003.png"); //TODO don't hardcode this path
+            text.Fade(OsbEasing.OutExpo, time, time + 400, 0f, 1f);
+            text.Scale(time + 1411, .5f);
+
             for (var i = 0; i < 2; i++) {
                 var sprite = layer.CreateSprite("sb/pixel.png", i == 0 ? OsbOrigin.TopCentre : OsbOrigin.BottomCentre, new Vector2(320, i == 0 ? 0 : 480));
                 sprite.Color(time, Color4.Black);
                 sprite.ScaleVec(OsbEasing.OutExpo, time, time + 176, 864, 0, 864, 220);
-                sprite.ScaleVec(OsbEasing.InExpo, time + 176, time + 1411, 864, 220, 864, 240);
+                sprite.ScaleVec(OsbEasing.InExpo, time + 176, time + 1412, 864, 220, 864, 240);
             }
         }
 
