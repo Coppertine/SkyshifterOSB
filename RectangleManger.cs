@@ -37,13 +37,16 @@ namespace StorybrewScripts
                     var rectNumberX = (x - startPosX) / elementScaleX;
                     var rectNumberY = (y - startPosY) / elementScaleY;
                     var sprite = GetLayer("Rectangle").CreateSprite("sb/pixel.png", OsbOrigin.TopLeft, new Vector2(x, y));
+
                     sprite.Fade(startTime + delay, startTime + delay + 300, 0, 0.5);
+                    sprite.Fade(endTime, rectNumberY / yElements, 0, 0.5);
                     sprite.Fade(endTime, endTime, 0.5, 1);
                     sprite.ScaleVec(startTime, elementScaleX, elementScaleY);
 
-                    Log("x =" + rectNumberX.ToString() + " y =" + rectNumberY.ToString());
+                    //Log("y = " + (rectNumberY / yElements).ToString());
+                    Log("x = " + (rectNumberX / xElements).ToString());
 
-                    delay = Math.Abs(rectNumberX - rectNumberY) * 100;
+                    delay = (rectNumberX * rectNumberX + rectNumberY * rectNumberY) * 100;
                 }
             }
         }
