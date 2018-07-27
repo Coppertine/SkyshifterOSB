@@ -147,8 +147,8 @@ namespace StorybrewScripts
 
         public void GenerateParticles(double startTime, double endTime, bool fromTop = false) { 
             using (var pool = new OsbSpritePool(layer, "sb/pixel.png", OsbOrigin.Centre, (sprite, sTime, eTime) => {
-                sprite.Fade(sTime, Random(0.4f, 0.95f));
-                sprite.Scale(sTime, Random(30f, 100f));
+                sprite.Fade(sTime, Random(0.2f, 0.9f));
+                sprite.Scale(sTime, Random(20f, 80f));
                 sprite.MoveX(sTime, Random(-107, 757));
 
                 if(eTime > endTime - beatduration * 4) //Hide sprites if they cross the end time
@@ -156,7 +156,7 @@ namespace StorybrewScripts
 
             })){
                 for (var sTime = (double)startTime; sTime <= endTime - beatduration * 4; sTime += beatduration / 2f) {
-                    var baseSpeed = Random(30, 140);
+                    var baseSpeed = Random(40, 120);
                     var eTime = sTime + Math.Ceiling(620f / baseSpeed) * beatduration;
 
                     if(eTime > 313864 && sTime < 314922) //Add bonus time for the movement stop section in the second kiai
@@ -188,6 +188,9 @@ namespace StorybrewScripts
 
                         currentTime += beatduration;
                     }
+
+                    if(Random(0, 4) > 0) //HACK move the time back in order to increase the particle count without running into syncing issues
+                        sTime -= beatduration / 2f; 
                 }
             }
         }
