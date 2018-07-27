@@ -16,10 +16,11 @@ namespace StorybrewScripts
 {
     public class CreditsManager : StoryboardObjectGenerator
     {
-        public List<OsbSprite> letterList = new List<OsbSprite>();
+        
         public override void Generate()
         {
-		    GenerateCredit("SAKURABURST", 7687, 16158, 60, 320, 220);
+		    GenerateCredit("SAKURABURST", 7687, 15099, 60, 320, 216);
+		    GenerateCredit("SONG COMPOSITION", 8040, 15099, 25, 320, 265);
         }
 
         private void GenerateCredit(string text, int startTime, int endTime, int size, int posX, int posY)
@@ -32,6 +33,7 @@ namespace StorybrewScripts
                 FontStyle = FontStyle.Regular,
             });
 
+            List<OsbSprite> letterList = new List<OsbSprite>();
             var currentNumber = letterPicker(0, text.Length);
             var layer = GetLayer("Credits");
             var letterX = 0f;
@@ -45,7 +47,9 @@ namespace StorybrewScripts
                 var texture = font.GetTexture(letter.ToString());
                 lineWidth += texture.BaseWidth * scale;
                 lineHeight = Math.Max(lineHeight, texture.BaseHeight * scale);
-                letterList.Add(layer.CreateSprite(texture.Path));
+
+                if(!texture.IsEmpty)
+                    letterList.Add(layer.CreateSprite(texture.Path));
             }
 
             letterX = posX - lineWidth * scale;
@@ -68,13 +72,14 @@ namespace StorybrewScripts
                     
                     for(double i = letterStart; i < startTime + switchDuration; i += 50)
                     {
-                        var newNumber = letterPicker(currentNumber, text.Length);
-                        spawnCharacter(newNumber, i, i + 50, position, scale, fade);
+                        var newNumber = letterPicker(currentNumber, letterList.Count);
+                        spawnCharacter(newNumber, i, i + 50, position, scale, fade, letterList);
 
                         currentNumber = newNumber;
                         fade += 1.0f/(switchNumber*2);
                     }
                     sprite.Fade(startTime + switchDuration, endTime, 1, 1);
+                    sprite.Fade(endTime, endTime + 1000, 1, 0);
                     sprite.Scale(startTime + switchDuration, scale);
                 }
                 letterX += texture.BaseWidth * scale;
@@ -94,7 +99,7 @@ namespace StorybrewScripts
             }
         }
 
-        private void spawnCharacter(int spriteIndex, double startTime, double endTime, Vector2 position, float scale, float Fade)
+        private void spawnCharacter(int spriteIndex, double startTime, double endTime, Vector2 position, float scale, float Fade, List<OsbSprite> letterList)
         {
             var sprite = GetLayer("").CreateSprite(letterList[spriteIndex].TexturePath, OsbOrigin.Centre, position);
             sprite.Scale(startTime, scale);
