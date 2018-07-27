@@ -24,7 +24,7 @@ namespace StorybrewScripts
 		    backgroundList.Add(GetLayer("Background").CreateSprite("sb/introbackground03.jpg", OsbOrigin.TopCentre));
             
             init();
-            Fade(0, 4863, 140393, 140393);
+            Fade(0, 4863, 117805, 117805);
             Move(OsbEasing.InOutSine, 27452, 50040, 0, 480);
         }
 
