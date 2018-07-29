@@ -34,7 +34,7 @@ namespace StorybrewScripts
 
             GenerateStartTransition(117805);
             GenerateMidTransition(161569);
-            GenerateEndTransition(184158);
+            GenerateEndTransition(184158, extend:true);
 
             //Kiai2
             GenerateBackground(281569, 326746);
@@ -304,37 +304,13 @@ namespace StorybrewScripts
                 sprite.Color(time, Color4.Black);
                 sprite.ScaleVec(OsbEasing.OutExpo, time, time + 176, 864, 0, 864, 220);
                 sprite.ScaleVec(OsbEasing.InExpo, time + 176, time + 1412, 864, 220, 864, 240);
+
+                if(!extend)
+                    continue;
+                
+                sprite.ScaleVec(OsbEasing.OutElasticQuarter, time + beatduration * 4, time + beatduration * 12, 864, 240, 864, 40);
+                sprite.ScaleVec(OsbEasing.InExpo, time + beatduration * 12, time + beatduration * 18, 864, 40, 864, 240);
             }
-
-            if (!extend)
-                return;
-
-            var lidTop = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.TopCentre,new Vector2(320,0));
-            var lidBottom = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.BottomCentre,new Vector2(320,480));
-            var beat = Beatmap.GetTimingPointAt(1000).BeatDuration;
-
-            lidTop.ScaleVec(OsbEasing.OutExpo,185569,186187,new Vector2(1000,240),new Vector2(1000,30));
-            lidTop.Color(185393,Color4.Black);
-            lidTop.Fade(185393,185569,0,1);
-            lidTop.Fade(190511,0);
-            lidTop.StartLoopGroup(186187,2);
-                lidTop.ScaleVec(OsbEasing.Out,0,beat * 2,new Vector2(1000,30),new Vector2(1000,42));
-                lidTop.ScaleVec(OsbEasing.In,beat * 2,beat*4,new Vector2(1000,42),new Vector2(1000,30));
-            lidTop.EndGroup();
-
-            lidTop.ScaleVec(189099,190511,new Vector2(1000,30),new Vector2(1000,240));
-
-            lidBottom.ScaleVec(OsbEasing.OutExpo,185569,186187,new Vector2(1000,240),new Vector2(1000,30));
-            lidBottom.Color(185393,Color4.Black);
-            lidBottom.Fade(185393,185569,0,1);
-            lidBottom.Fade(190511,0);
-            lidBottom.StartLoopGroup(186187,2);
-                lidBottom.ScaleVec(OsbEasing.Out,0,beat * 2,new Vector2(1000,30),new Vector2(1000,42));
-                lidBottom.ScaleVec(OsbEasing.In,beat * 2,beat*4,new Vector2(1000,42),new Vector2(1000,30));
-            lidBottom.EndGroup();
-
-
-            lidBottom.ScaleVec(189099,190511,new Vector2(1000,30),new Vector2(1000,240));
         }
 
         #endregion
