@@ -34,7 +34,7 @@ namespace StorybrewScripts
 
             GenerateStartTransition(117805);
             GenerateMidTransition(161569);
-            GenerateEndTransition(184158);
+            GenerateEndTransition(184158, extend:true);
 
             //Kiai2
             GenerateBackground(281569, 326746);
@@ -294,7 +294,7 @@ namespace StorybrewScripts
             flash.Fade(OsbEasing.In, time + 1412, time + 2118, 1f, 0f);
         }
 
-        public void GenerateEndTransition(double time) {
+        public void GenerateEndTransition(double time, bool extend=false) {
             var text = layer.CreateSprite("sb/lyrics/_003.png"); //TODO don't hardcode this path
             text.Fade(OsbEasing.OutExpo, time, time + 400, 0f, 1f);
             text.Scale(time + 1411, .5f);
@@ -304,6 +304,12 @@ namespace StorybrewScripts
                 sprite.Color(time, Color4.Black);
                 sprite.ScaleVec(OsbEasing.OutExpo, time, time + 176, 864, 0, 864, 220);
                 sprite.ScaleVec(OsbEasing.InExpo, time + 176, time + 1412, 864, 220, 864, 240);
+
+                if(!extend)
+                    continue;
+                
+                sprite.ScaleVec(OsbEasing.OutElasticQuarter, time + beatduration * 4, time + beatduration * 12, 864, 240, 864, 40);
+                sprite.ScaleVec(OsbEasing.InExpo, time + beatduration * 12, time + beatduration * 18, 864, 40, 864, 240);
             }
         }
 
