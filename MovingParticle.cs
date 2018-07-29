@@ -16,8 +16,6 @@ namespace StorybrewScripts
     {
         public override void Generate()
         {
-            
-
             foreach(var hitobject in GetBeatmap("sliders").HitObjects)
             {
                 if(hitobject.StartTime == 27452)
@@ -29,18 +27,19 @@ namespace StorybrewScripts
                         particleStart.Move(OsbEasing.InExpo, 24628, hitobject.StartTime, particleStartPosition, hitobject.Position);
                         particleStart.Scale(hitobject.StartTime, Random(0.05, 0.1));
                         particleStart.Fade(Random(24628, 26040), 26040, 0, 1);
+                        particleStart.Move(OsbEasing.OutExpo, hitobject.StartTime, hitobject.StartTime + 1000, hitobject.Position, particleStartPosition);
+                        particleStart.Fade(hitobject.StartTime, hitobject.StartTime + 500, 1, 0);
                     }
 
 
                     var sprite = GetLayer("ParticleMoving").CreateSprite("sb/flashydot.png", OsbOrigin.Centre, hitobject.Position);
-                    sprite.Scale(hitobject.StartTime, 0.08);
+                    sprite.Scale(hitobject.StartTime, 30275, 0, 0.08);
+                    sprite.Scale(48628, 50040, 0.08, 0);
                     var timestep = Beatmap.GetTimingPointAt((int)hitobject.StartTime).BeatDuration / 4;
                     var startTime = hitobject.StartTime;
                     while (true)
                     {
-                       
                         var endTime = startTime + timestep;
-
                         var complete = hitobject.EndTime - endTime < 5;
                         if (complete) endTime = hitobject.EndTime;
 
@@ -50,7 +49,7 @@ namespace StorybrewScripts
                         var particle = GetLayer("ParticleMoving").CreateSprite("sb/dot.png", OsbOrigin.Centre, particlePosition);
                         particle.Fade(startTime, startTime + Random(1000, 2000), 1, 0);
                         particle.Scale(startTime, Random(0.05, 0.2));
-                        particle.Color(startTime, Color4.Orange);
+                        particle.Color(startTime, Color4.White);
                         sprite.Move(startTime, endTime, startPosition, hitobject.PositionAtTime(endTime));
 
                         if (complete) break;
@@ -66,8 +65,8 @@ namespace StorybrewScripts
 
             return  new Vector2
             (
-                (float)(radius * Math.Cos(radian) + centre.X),
-                (float)(radius * Math.Sin(radian) + centre.Y)
+                (int)(radius * Math.Cos(radian) + centre.X),
+                (int)(radius * Math.Sin(radian) + centre.Y)
             );
         }
     } 
