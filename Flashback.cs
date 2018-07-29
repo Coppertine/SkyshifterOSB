@@ -27,18 +27,24 @@ namespace StorybrewScripts
 
         void generateBackground()
         {
+            //var backgroundBlur = layer.CreateSprite("sb/introBgBlur.jpg");
+            //backgroundBlur.Scale(185569,480.0f/1080);
+            //backgroundBlur.Fade(186275,186805,0,1);
+            //backgroundBlur.Fade(186805,187687,1,0.3);
+            //backgroundBlur.Fade(187687,189099,0.3,0.89);
+            //backgroundBlur.Fade(OsbEasing.InExpo,189099,190511,0.89,0);
+             
+             
             var background = layer.CreateSprite("sb/introbackground01.jpg");
             background.Scale(185569,480.0f/1080);
             background.Fade(185393,185569,0, 1);
-            background.Fade(190511,0);
+            background.Fade(190511,0);            
+            background.Additive(185569,190511);
+            
 
-            var backgroundBlur = layer.CreateSprite("sb/introBgBlur.jpg");
-            backgroundBlur.Scale(185569,480.0f/1080);
-            backgroundBlur.Fade(186275,186805,0,1);
-            backgroundBlur.Fade(186805,187687,1,0.3);
-            backgroundBlur.Fade(187687,189099,0.3,0.89);
-            backgroundBlur.Fade(OsbEasing.InExpo,189099,190511,0.89,0);
-
+            
+            
+            
 
 
         }
@@ -54,8 +60,8 @@ namespace StorybrewScripts
 
         void generateLids()
         { 
-            var lidTop = layer.CreateSprite("sb/pixel.png",OsbOrigin.TopCentre,new Vector2(320,0));
-            var lidBottom = layer.CreateSprite("sb/pixel.png",OsbOrigin.BottomCentre,new Vector2(320,480));
+            var lidTop = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.TopCentre,new Vector2(320,0));
+            var lidBottom = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.BottomCentre,new Vector2(320,480));
             var beat = Beatmap.GetTimingPointAt(1000).BeatDuration;
 
             lidTop.ScaleVec(OsbEasing.OutExpo,185569,186187,new Vector2(1000,240),new Vector2(1000,30));
