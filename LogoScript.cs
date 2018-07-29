@@ -46,7 +46,7 @@ namespace StorybrewScripts
                 sprite.ScaleVec(StartTime + i * SegmentDelay, (prev - next).Length + 10, 15);
                 sprite.Rotate(StartTime, RotationAt(i / (float)StepSize) + Math.PI);
 
-                if (sprite.CommandsEndTime > 186805) { 
+                if (sprite.CommandsEndTime > 186805) {
                     sprite.Fade(sprite.CommandsStartTime, 1f);
                     sprite.Fade(186805, 0f);
                 }
@@ -79,10 +79,10 @@ namespace StorybrewScripts
 
             //big dots along the curve
             for (int i = 3; i >= 0; i--) {
-                var dot = layer.CreateSprite("sb/logoDot.png", OsbOrigin.Centre, startPosition);
+                var dot = layer.CreateSprite("sb/logoDot.png", OsbOrigin.Centre, PositionAt(i==0 ? 0f : DotPositions[i - 1]));
                 dot.Scale(EndTime, 2 - i / 2f);
 
-                MoveAlong(dot, DotPositions[i]);
+                MoveAlong(dot, DotPositions[i], start:i==0 ? 0f : DotPositions[i - 1]);
             }
             
             //Text
@@ -113,13 +113,21 @@ namespace StorybrewScripts
             var last = StartTime;
             for (int i = 1; i < StepSize; i++) {
                 var time = StartTime + i * SegmentDelay;
-                var position = PositionAt(Math.Min(end, i / (float)StepSize));
+                var percentage = i / (float)StepSize;
+                if(start >= percentage) {
+                    last = time;
+                    continue;
+                }
+
+                var position = PositionAt(Math.Min(end, percentage));
 
                 sprite.Move(last, time, sprite.PositionAt(last), position);
                 if(rotate)
-                    sprite.Rotate(last, time, sprite.RotationAt(last), RotationAt(Math.Min(end, i / (float)StepSize)));
+                    sprite.Rotate(last, time, sprite.RotationAt(last), RotationAt(Math.Min(end, percentage)));
                     
                 last = time;
+                if(percentage >= end)
+                    break;
             }
         }
 
@@ -127,18 +135,21 @@ namespace StorybrewScripts
             var last = StartTime;
             for (int i = 1; i < StepSize; i++) {
                 var time = StartTime + i * SegmentDelay;
+                var percentage = i / (float)StepSize;
                 
-                if(start >= i / (float)StepSize) {
+                if(start >= percentage) {
                     last = time;
                     continue;
                 }
 
-                var position = PositionAt(Math.Min(end, i / (float)StepSize));
+                var position = PositionAt(Math.Min(end, percentage));
 
                 sprite.Rotate(last, time, sprite.RotationAt(last), Math.Atan2(position.Y - startPosition.Y, position.X - startPosition.X));
                 sprite.ScaleVec(last, time, sprite.ScaleAt(last), (startPosition - position).Length + 2, 1);
 
                 last = time;
+                if(percentage >= end)
+                    break;
             }
         }
 
