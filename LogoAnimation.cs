@@ -28,15 +28,12 @@ namespace StorybrewScripts
             
             var logoBack = GetLayer("").CreateSprite("sb/logoBack.png", OsbOrigin.Centre, new Vector2(320, 230));
             logoBack.Scale(StartTime, .5f);
-            logoBack.Additive(StartTime,EndTime);
             logoBack.Fade(EndTime, .7f);
 
             //Cover generation
             for (int i = 0; i < StepSize; i++) {
-                var sprite = GetLayer("").CreateSprite("sb/pixel.png", OsbOrigin.CentreRight, new Vector2(0,0));
-                //sprite.Additive(StartTime,StartTime + i * segmentDelay);
+                var sprite = GetLayer("").CreateSprite("sb/pixel.png", OsbOrigin.CentreRight, PositionAt(i / (float)StepSize));
                 sprite.Color(StartTime, Color4.Black);
-                sprite.Move(StartTime,PositionAt(i / (float)StepSize));
 
                 var prev = PositionAt(i / (float)StepSize);
                 var next = PositionAt((i + 1) / (float)StepSize);
@@ -65,7 +62,6 @@ namespace StorybrewScripts
             gradient.ScaleVec(StartTime, .6, 20);
             gradient.Color(StartTime, Color4.Black);
             gradient.Fade(186805, MidTime, 1f, 0f);
-            //gradient.Additive(StartTime,MidTime);
             MoveAlong(gradient, 1f, true);
 
             for (int i = 3; i >= 0; i--) {
@@ -75,19 +71,9 @@ namespace StorybrewScripts
                 MoveAlong(dot, positions[i]);
             }
 
-
-            //Shadow
-            var Shadow = GetLayer("Text").CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(309, 246));
-            Shadow.Color(StartTime,Color4.Black);
-            Shadow.Scale(OsbEasing.InOutSine, StartTime, EndTime, .49f, .5f);
-            Shadow.Fade(OsbEasing.OutExpo, StartTime, EndTime, 0f, 0.8f);
-            
-            //Text
-            var text = GetLayer("Text").CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(310, 245));
+            var text = GetLayer("").CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(310, 245));
             text.Scale(OsbEasing.InOutSine, StartTime, EndTime, .49f, .5f);
             text.Fade(OsbEasing.OutExpo, StartTime, EndTime, 0f, 1f);
-            
-            
         }
 
         public void ConnectPoints(float start, float end) { 
