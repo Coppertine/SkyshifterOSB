@@ -294,7 +294,7 @@ namespace StorybrewScripts
             flash.Fade(OsbEasing.In, time + 1412, time + 2118, 1f, 0f);
         }
 
-        public void GenerateEndTransition(double time) {
+        public void GenerateEndTransition(double time, bool extend=false) {
             var text = layer.CreateSprite("sb/lyrics/_003.png"); //TODO don't hardcode this path
             text.Fade(OsbEasing.OutExpo, time, time + 400, 0f, 1f);
             text.Scale(time + 1411, .5f);
@@ -305,6 +305,36 @@ namespace StorybrewScripts
                 sprite.ScaleVec(OsbEasing.OutExpo, time, time + 176, 864, 0, 864, 220);
                 sprite.ScaleVec(OsbEasing.InExpo, time + 176, time + 1412, 864, 220, 864, 240);
             }
+
+            if (!extend)
+                return;
+
+            var lidTop = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.TopCentre,new Vector2(320,0));
+            var lidBottom = GetLayer("Lids").CreateSprite("sb/pixel.png",OsbOrigin.BottomCentre,new Vector2(320,480));
+            var beat = Beatmap.GetTimingPointAt(1000).BeatDuration;
+
+            lidTop.ScaleVec(OsbEasing.OutExpo,185569,186187,new Vector2(1000,240),new Vector2(1000,30));
+            lidTop.Color(185393,Color4.Black);
+            lidTop.Fade(185393,185569,0,1);
+            lidTop.Fade(190511,0);
+            lidTop.StartLoopGroup(186187,2);
+                lidTop.ScaleVec(OsbEasing.Out,0,beat * 2,new Vector2(1000,30),new Vector2(1000,42));
+                lidTop.ScaleVec(OsbEasing.In,beat * 2,beat*4,new Vector2(1000,42),new Vector2(1000,30));
+            lidTop.EndGroup();
+
+            lidTop.ScaleVec(189099,190511,new Vector2(1000,30),new Vector2(1000,240));
+
+            lidBottom.ScaleVec(OsbEasing.OutExpo,185569,186187,new Vector2(1000,240),new Vector2(1000,30));
+            lidBottom.Color(185393,Color4.Black);
+            lidBottom.Fade(185393,185569,0,1);
+            lidBottom.Fade(190511,0);
+            lidBottom.StartLoopGroup(186187,2);
+                lidBottom.ScaleVec(OsbEasing.Out,0,beat * 2,new Vector2(1000,30),new Vector2(1000,42));
+                lidBottom.ScaleVec(OsbEasing.In,beat * 2,beat*4,new Vector2(1000,42),new Vector2(1000,30));
+            lidBottom.EndGroup();
+
+
+            lidBottom.ScaleVec(189099,190511,new Vector2(1000,30),new Vector2(1000,240));
         }
 
         #endregion

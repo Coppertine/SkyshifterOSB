@@ -13,37 +13,38 @@ using System.Linq;
 
 namespace StorybrewScripts
 {
-    public class LogoAnimation : StoryboardObjectGenerator
+    public class LogoScript : StoryboardObjectGenerator
     {
         public static int StepSize = 20;
         public static double StartTime = 185569;
         public static double MidTime = 186981;
         public static double EndTime = 190511;
-        public int segmentDelay = (int)((MidTime - StartTime) / StepSize);
+        public int SegmentDelay = (int)((MidTime - StartTime) / StepSize);
+        public float[] DotPositions = new float[] { 0.3f, .5f, .6f, .65f };
+
+        public StoryboardLayer layer;
 
         public override void Generate() {
+            //init
             var startPosition = PositionAt(0f);
-            
+            layer = GetLayer("");
             GenerateImage();
             
-            var logoBack = GetLayer("").CreateSprite("sb/logoBack.png", OsbOrigin.Centre, new Vector2(320, 230));
+            //curved image
+            var logoBack = layer.CreateSprite("sb/logoBack.png", OsbOrigin.Centre, new Vector2(320, 230));
             logoBack.Scale(StartTime, .5f);
-            logoBack.Additive(StartTime,EndTime);
             logoBack.Fade(EndTime, .7f);
 
-            //Cover generation
+            //cover generation
             for (int i = 0; i < StepSize; i++) {
-                var sprite = GetLayer("").CreateSprite("sb/pixel.png", OsbOrigin.CentreRight, new Vector2(0,0));
-                //sprite.Additive(StartTime,StartTime + i * segmentDelay);
+                var sprite = layer.CreateSprite("sb/pixel.png", OsbOrigin.CentreRight, PositionAt(i / (float)StepSize));
                 sprite.Color(StartTime, Color4.Black);
-                sprite.Move(StartTime,PositionAt(i / (float)StepSize));
 
                 var prev = PositionAt(i / (float)StepSize);
                 var next = PositionAt((i + 1) / (float)StepSize);
 
-                //sprite.ScaleVec(StartTime + (i - 1) * segmentDelay, StartTime + i * segmentDelay, (prev - next).Length + 10, 10, 0, 10);
-                sprite.ScaleVec(StartTime + i * segmentDelay, (prev - next).Length + 10, 15);
-                sprite.Rotate(StartTime, RotationAt(i / (float)StepSize) + Math.PI) ;//Math.Atan2(next.Y - prev.Y, next.X - prev.X));
+                sprite.ScaleVec(StartTime + i * SegmentDelay, (prev - next).Length + 10, 15);
+                sprite.Rotate(StartTime, RotationAt(i / (float)StepSize) + Math.PI);
 
                 if (sprite.CommandsEndTime > 186805) { 
                     sprite.Fade(sprite.CommandsStartTime, 1f);
@@ -51,60 +52,67 @@ namespace StorybrewScripts
                 }
             }
 
-            var positions = new float[] { 0.3f, .5f, .6f, .65f };
-            ConnectPoints(0f, positions[0]);
-            ConnectPoints(0f, positions[1]);
-            ConnectPoints(0f, positions[3]);
+            //lines
+            ConnectPoints(0f, DotPositions[0]);
+            ConnectPoints(0f, DotPositions[1]);
+            ConnectPoints(0f, DotPositions[3]);
 
-            ConnectPoints(positions[0], positions[2]);
+            ConnectPoints(DotPositions[0], DotPositions[2]);
 
-            ConnectPoints(positions[0], 1f);
-            ConnectPoints(positions[2], 1f);
+            ConnectPoints(DotPositions[0], 1f);
+            ConnectPoints(DotPositions[2], 1f);
 
-            var gradient = GetLayer("").CreateSprite("sb/logoGradient.png", OsbOrigin.Centre, startPosition);
+            //gradient (used to make the transition smooth and to hide the cover when it jumps out of existence)
+            var gradient = layer.CreateSprite("sb/logoGradient.png", OsbOrigin.Centre, startPosition);
             gradient.ScaleVec(StartTime, .6, 20);
             gradient.Color(StartTime, Color4.Black);
             gradient.Fade(186805, MidTime, 1f, 0f);
-            //gradient.Additive(StartTime,MidTime);
             MoveAlong(gradient, 1f, true);
 
+            //section background
+            var background = layer.CreateSprite("sb/introbackground01.jpg");
+            background.Scale(185569, 480.0f / 1080); 
+            background.Additive(185569, 190511);
+            
+            //vignette
+            GenerateVignette();
+
+            //big dots along the curve
             for (int i = 3; i >= 0; i--) {
-                var dot = GetLayer("").CreateSprite("sb/logoDot.png", OsbOrigin.Centre, startPosition);
+                var dot = layer.CreateSprite("sb/logoDot.png", OsbOrigin.Centre, startPosition);
                 dot.Scale(EndTime, 2 - i / 2f);
 
-                MoveAlong(dot, positions[i]);
+                MoveAlong(dot, DotPositions[i]);
             }
-
-
-            //Shadow
-            var Shadow = GetLayer("Text").CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(309, 246));
-            Shadow.Color(StartTime,Color4.Black);
-            Shadow.Scale(OsbEasing.InOutSine, StartTime, EndTime, .49f, .5f);
-            Shadow.Fade(OsbEasing.OutExpo, StartTime, EndTime, 0f, 0.8f);
             
             //Text
-            var text = GetLayer("Text").CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(310, 245));
+            var text = layer.CreateSprite("sb/logoText.png", OsbOrigin.Centre, new Vector2(310, 245));
             text.Scale(OsbEasing.InOutSine, StartTime, EndTime, .49f, .5f);
-            text.Fade(OsbEasing.OutExpo, StartTime, EndTime, 0f, 1f);
-            
-            
+            text.Fade(OsbEasing.OutSine, StartTime, EndTime, .8f, 1f);
         }
+
+        void GenerateVignette() { //TODO replace with global vignette script
+            var vig = layer.CreateSprite("sb/vig.png");
+            vig.Scale(185569, 480.0f / 1080);
+            vig.Fade(190511, 1f);
+        }
+
+        #region LogoAnimation
 
         public void ConnectPoints(float start, float end) { 
             var prev = PositionAt(start);
             var next = PositionAt(end);
 
-            var layer = GetLayer("");
             var sprite = layer.CreateSprite("sb/pixel.png", OsbOrigin.CentreLeft, prev);
 
             RotateAlong(sprite, prev, start, end);
             sprite.Fade(EndTime, .5f);
         }
 
-        public void MoveAlong(OsbSprite sprite, float end, bool rotate=false) {
+        public void MoveAlong(OsbSprite sprite, float end, bool rotate=false, float start=0f) {
             var last = StartTime;
             for (int i = 1; i < StepSize; i++) {
-                var time = StartTime + i * segmentDelay;
+                var time = StartTime + i * SegmentDelay;
                 var position = PositionAt(Math.Min(end, i / (float)StepSize));
 
                 sprite.Move(last, time, sprite.PositionAt(last), position);
@@ -118,7 +126,7 @@ namespace StorybrewScripts
         public void RotateAlong(OsbSprite sprite, Vector2 startPosition, float start, float end) {
             var last = StartTime;
             for (int i = 1; i < StepSize; i++) {
-                var time = StartTime + i * segmentDelay;
+                var time = StartTime + i * SegmentDelay;
                 
                 if(start >= i / (float)StepSize) {
                     last = time;
@@ -210,5 +218,6 @@ namespace StorybrewScripts
 
             return new Vector2(maxX, maxY);
         }
+        #endregion LogoAnimation
     }
 }
