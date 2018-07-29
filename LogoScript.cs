@@ -20,7 +20,7 @@ namespace StorybrewScripts
         public static double MidTime = 186981;
         public static double EndTime = 190511;
         public int SegmentDelay = (int)((MidTime - StartTime) / StepSize);
-        public float[] DotPositions = new float[] { 0.3f, .5f, .6f, .65f };
+        public float[] DotPositions = new float[] { 0.3f, .5f, .6f, .66f };
 
         public StoryboardLayer layer;
 
@@ -67,7 +67,7 @@ namespace StorybrewScripts
             gradient.ScaleVec(StartTime, .6, 20);
             gradient.Color(StartTime, Color4.Black);
             gradient.Fade(186805, MidTime, 1f, 0f);
-            MoveAlong(gradient, 1f, true);
+            FollowCurve(gradient, rotate:true);
 
             //section background
             var background = layer.CreateSprite("sb/introbackground01.jpg");
@@ -82,7 +82,7 @@ namespace StorybrewScripts
                 var dot = layer.CreateSprite("sb/logoDot.png", OsbOrigin.Centre, PositionAt(i==0 ? 0f : DotPositions[i - 1]));
                 dot.Scale(EndTime, 2 - i / 2f);
 
-                MoveAlong(dot, DotPositions[i], start:i==0 ? 0f : DotPositions[i - 1]);
+                FollowCurve(dot, start:i==0 ? 0f : DotPositions[i - 1], end:DotPositions[i]);
             }
             
             //Text
@@ -105,51 +105,39 @@ namespace StorybrewScripts
 
             var sprite = layer.CreateSprite("sb/pixel.png", OsbOrigin.CentreLeft, prev);
 
-            RotateAlong(sprite, prev, start, end);
+            FollowCurve(sprite, start, end, move:false, rotate:true);
             sprite.Fade(EndTime, .5f);
         }
 
-        public void MoveAlong(OsbSprite sprite, float end, bool rotate=false, float start=0f) {
+        public void FollowCurve(OsbSprite sprite, float start=0f, float end=1f, bool move=true, bool rotate=false) {
             var last = StartTime;
+            var startPosition = PositionAt(start);
             for (int i = 1; i < StepSize; i++) {
                 var time = StartTime + i * SegmentDelay;
                 var percentage = i / (float)StepSize;
-                if(start >= percentage) {
-                    last = time;
-                    continue;
-                }
-
-                var position = PositionAt(Math.Min(end, percentage));
-
-                sprite.Move(last, time, sprite.PositionAt(last), position);
-                if(rotate)
-                    sprite.Rotate(last, time, sprite.RotationAt(last), RotationAt(Math.Min(end, percentage)));
-                    
-                last = time;
-                if(percentage >= end)
-                    break;
-            }
-        }
-
-        public void RotateAlong(OsbSprite sprite, Vector2 startPosition, float start, float end) {
-            var last = StartTime;
-            for (int i = 1; i < StepSize; i++) {
-                var time = StartTime + i * SegmentDelay;
-                var percentage = i / (float)StepSize;
+                var position = PositionAt(Math.Max(start, Math.Min(end, percentage)));
                 
                 if(start >= percentage) {
                     last = time;
                     continue;
                 }
 
-                var position = PositionAt(Math.Min(end, percentage));
+                if(move)
+                    sprite.Move(last, time, sprite.PositionAt(last), position);
 
-                sprite.Rotate(last, time, sprite.RotationAt(last), Math.Atan2(position.Y - startPosition.Y, position.X - startPosition.X));
-                sprite.ScaleVec(last, time, sprite.ScaleAt(last), (startPosition - position).Length + 2, 1);
-
-                last = time;
+                if (rotate) { 
+                    if(move)
+                        sprite.Rotate(last, time, sprite.RotationAt(last), RotationAt(Math.Min(end, percentage)));
+                    else { 
+                        sprite.Rotate(last, time, sprite.RotationAt(last), Math.Atan2(position.Y - startPosition.Y, position.X - startPosition.X));
+                        sprite.ScaleVec(last, time, sprite.ScaleAt(last), (startPosition - position).Length + 2, 1);
+                    }
+                }
+                    
                 if(percentage >= end)
                     break;
+                    
+                last = time;
             }
         }
 
