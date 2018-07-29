@@ -24,7 +24,8 @@ namespace StorybrewScripts
 		    backgroundList.Add(GetLayer("Background").CreateSprite("sb/introbackground03.jpg", OsbOrigin.TopCentre));
             
             init();
-            Fade(0, 4863, 117805, 117805);
+            Fade(0, 4863, 27452, 27452, 0, 0.5f);
+            Fade(27453, 27453, 117805, 117805, 0, 1f);
             Move(OsbEasing.InOutSine, 27452, 50040, 0, 480);
         }
 
@@ -39,12 +40,12 @@ namespace StorybrewScripts
             }
         }
 
-        private void Fade(int startTime, int startFade, int endTime, int endFade)
+        private void Fade(int startTime, int startFading, int endTime, int endFading, float startFade, float endFade)
         {
             foreach(var background in backgroundList)
             {
-                background.Fade(startTime, startFade, 0, 1);
-                background.Fade(endFade, endTime, 1, 0);
+                background.Fade(startTime, startFading, startFade, endFade);
+                background.Fade(endFading, endTime, startFade, endFade);
             }
         }
 
