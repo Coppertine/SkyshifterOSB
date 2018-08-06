@@ -68,7 +68,7 @@ namespace StorybrewScripts
             var lineHeight = 0f;
             var delay = 0;
 
-            foreach(var letter in "SHIZUKU")
+            foreach(var letter in "SHIZUKU-")
             {
                 var texture = font.GetTexture(letter.ToString());
                 lineWidth += texture.BaseWidth * scale;
@@ -77,7 +77,7 @@ namespace StorybrewScripts
 
             letterX = 505 - lineWidth * scale;
 
-            foreach(var letter in "SHIZUKU")
+            foreach(var letter in "SHIZUKU-")
             {
                 var texture = font.GetTexture(letter.ToString());
                 
