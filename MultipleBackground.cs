@@ -25,8 +25,15 @@ namespace StorybrewScripts
             
             init();
             Fade(0, 4863, 27452, 27452, 0, 0.5f);
-            Fade(27453, 27453, 117805, 117805, 0, 1f);
+            Fade(27453, 27453, 50040, 50040, 0, 1f);
             Move(OsbEasing.InOutSine, 27452, 50040, 0, 480);
+
+            Move(OsbEasing.OutExpo, 72628, 76863, 400, 480);
+            Move(OsbEasing.InOutSine, 95216, 117805, 480, 960);
+            
+            Fade(50040, 50040, 72628, 72628, 0, 0); 
+            Fade(72628, 74040, 117805, 117805, 0, 1f);
+
         }
 
         private void init()
@@ -45,7 +52,7 @@ namespace StorybrewScripts
             foreach(var background in backgroundList)
             {
                 background.Fade(startTime, startFading, startFade, endFade);
-                background.Fade(endFading, endTime, startFade, endFade);
+                background.Fade(endFading, endTime, endFade, startFade);
             }
         }
 

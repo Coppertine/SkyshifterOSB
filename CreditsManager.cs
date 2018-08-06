@@ -23,12 +23,15 @@ namespace StorybrewScripts
 		    GenerateCredit("SKYSHIFTER VIP", 8040, 15099, 25, 320, 265);
         
         
-        GenerateCredit("BEATMAP",16158,23216,50,320,130);
+            GenerateCredit("BEATMAP", 16158, 23216, 35, 320, 130);
         
-        GenerateCredit("STORYBOARD",17569,23216,50,320,280);
+            GenerateCredit("STORYBOARD",17569, 23216, 35, 320, 280);
         
-        GenerateCredit("SCUBDOMINO & SHIZUKU-",18981,23216,40,320,160);
-        GenerateCredit("COPPERTINE - DARKY1 - PONO",20393,23216,40,320,310);
+            GenerateCredit("SCUBDOMINO & SHIZUKU-", 18981, 23216, 26, 320, 153);
+            GenerateCredit("COPPERTINE - DARKY1 - PONO", 20393, 23216, 26, 320, 303);
+
+            GenerateCredit("SCUBDOMINO", 51452, 59922, 35, 320, 240);
+            GenerateCredit("SHIZUKU-", 62746, 71922, 35, 320, 240);
         }
 
         private void GenerateCredit(string text, int startTime, int endTime, int size, int posX, int posY)

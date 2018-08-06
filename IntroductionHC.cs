@@ -20,6 +20,7 @@ namespace StorybrewScripts
             Rectangle(5569, 14746, 5, 250);
             
             Flash(27452, 1000, 0.5);
+            Flash(95216, 5000, 0.5);
 
             NameOnBuilding();
         }
