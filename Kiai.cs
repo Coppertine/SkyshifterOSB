@@ -250,9 +250,13 @@ namespace StorybrewScripts
 
         public void GenerateStartTransition(double time) {
             //background
-            var bgBlur = layer.CreateSprite("sb/bgKiaiBlur.jpg"); //TODO change path depending on the previous section
-            bgBlur.Scale(time, 480.0f / 1093);
+            var bgBlur = layer.CreateSprite("sb/bgBuildupBlur.jpg");
+            bgBlur.Scale(time, 480.0f / 1080);
             bgBlur.Fade(time + 22058, 1);
+
+            var bg = layer.CreateSprite("sb/introbackground03.jpg");
+            bg.Scale(time, 480.0f / 1080);
+            bg.Fade(OsbEasing.InSine, time, time + beatduration * 16, 1f, 0f);
 
             //edges
             var off = 84; //move the outer boundaries back to prevent caps caused by the rotation

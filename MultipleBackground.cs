@@ -31,7 +31,7 @@ namespace StorybrewScripts
             Move(OsbEasing.OutExpo, 72628, 76863, 400, 480);
             Move(OsbEasing.InOutSine, 95216, 117099, 480, 960);
             
-            Move(OsbEasing.InExpo,117099,117805,960,400);
+            //Move(OsbEasing.InExpo,117099,117805,960,400);
             
             Fade(50040, 50040, 72628, 72628, 0, 0); 
             Fade(72628, 74040, 117805, 117805, 0, 1f);
