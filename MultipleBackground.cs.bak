@@ -1,0 +1,147 @@
+using OpenTK;
+using OpenTK.Graphics;
+using StorybrewCommon.Mapset;
+using StorybrewCommon.Scripting;
+using StorybrewCommon.Storyboarding;
+using StorybrewCommon.Storyboarding.Util;
+using StorybrewCommon.Subtitles;
+using StorybrewCommon.Util;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StorybrewScripts
+{
+    public class MultipleBackground : StoryboardObjectGenerator
+    {
+        private enum LayeringDirection {Vertical, Horizontal};
+
+        public override void Generate()
+        {
+        
+        List<OsbSprite> backgroundList_CityToSky = new List<OsbSprite>();
+        List<OsbSprite> backgroundList_TowerCity = new List<OsbSprite>();
+        
+            //Create the 3 background sprites
+            backgroundList_CityToSky.Add(GetLayer("Background").CreateSprite("sb/introbackground01.jpg", OsbOrigin.TopCentre));
+            backgroundList_CityToSky.Add(GetLayer("Background").CreateSprite("sb/introbackground02.jpg", OsbOrigin.TopCentre));
+            backgroundList_CityToSky.Add(GetLayer("Background").CreateSprite("sb/introbackground03.jpg", OsbOrigin.TopCentre));
+            
+            //Tower City Background Sprites
+            
+            
+            init(backgroundList_CityToSky, LayeringDirection.Vertical);
+            init(backgroundList_TowerCity, LayeringDirection.Vertical);
+            Fade(backgroundList_CityToSky, 0, 4863, 27452, 27452, 0, 0.5f);
+            Fade(backgroundList_CityToSky, 27453, 27453, 50040, 50040, 0, 1f);
+            Move(backgroundList_CityToSky, OsbEasing.InOutSine, 27452, 50040, new Vector2(0,0), new Vector2(0,480));
+
+            Move(backgroundList_CityToSky, OsbEasing.OutExpo, 72628, 76863, new Vector2(0,400), new Vector2(0,480));
+            Move(backgroundList_CityToSky, OsbEasing.InOutSine, 95216, 117099, new Vector2(0,480), new Vector2(0,960));
+            
+            //Move(OsbEasing.InExpo,117099,117805,960,400);
+            
+            Fade(backgroundList_CityToSky, 50040, 50040, 72628, 72628, 0, 0); 
+            Fade(backgroundList_CityToSky, 72628, 74040, 117805, 117805, 0, 1f);
+
+        }
+
+        private void init(List<OsbSprite> backgroundList, LayeringDirection direction)
+        {
+            
+            switch(direction)
+            {
+                case LayeringDirection.Vertical:
+                    initVertical(backgroundList);
+                    break;
+                case LayeringDirection.Horizontal:
+                    initHorizontal(backgroundList);
+                    break;
+                default:
+                    throw new IndexOutOfRangeException();
+            }
+            
+        }
+        
+        private void initHorizontal(List<OsbSprite> backgroundList)
+        {
+            var posY = 0;
+            var posX = 0;
+        }
+        
+        private void initVertical()
+        {
+            foreach(var background in backgroundList)
+                {
+                    background.Scale(0, 480.0/1080);
+                    background.MoveY(0, posY);
+                    posY -= 480;
+                }
+        }
+
+        private void Fade(List<OsbSprite> backgroundList, int startTime, int startFading, int endTime, int endFading, float startFade, float endFade, OsbEasing easing = OsbEasing.None)
+        {
+            foreach(var background in backgroundList)
+            {
+                background.Fade(startTime, startFading, startFade, endFade);
+                background.Fade(endFading, endTime, endFade, startFade);
+            }
+        }
+        
+        private void Move(List<OsbSprite> backgroundList, OsbEasing easing, int startTime, int endTime, Vector2 posStart, Vector2 posEnd)
+        {
+            if(posStart.X == posEnd.X)
+            {
+                switch(posStart.X)
+                {
+                    case 0:
+                        break;
+                    default:
+                        moveHorizontal(backgroundList, easing:easing, startTime, endTime, posStart.X, posStart.X);
+                        break;
+                    
+                }
+            } else {
+                moveHorizontal(backgroundList, easing:easing, startTime, endTime, posStart.X, posEnd.X);
+            }
+            
+            if(posStart.X == posEnd.X)
+            {
+                switch(posStart.X)
+                {
+                    case 0:
+                        break;
+                    default:
+                        moveVertical(backgroundList, easing:easing, startTime, endTime, posStart.Y, posEnd.Y);
+                        break;
+                    
+                }
+            } else {
+                moveVertical(backgroundList, easing:easing, startTime, endTime, posStart.Y, posEnd.Y);
+            }
+            
+        }
+        
+               
+        private void moveVertical(List<OsbSprite> backgroundList, int startTime, int endTime, int startY, int endY, OsbEasing easing = OsbEasing.None)
+        {
+            var offsetY = 0;
+            foreach(var background in backgroundList)
+            {
+                background.MoveY(easing, startTime, endTime, startY + offsetY, endY + offsetY); 
+                offsetY -= 480;
+            }
+        }
+        
+        
+        private void moveHorizontal(List<OsbSprite> backgroundList, int startTime, int endTime, int startX, int endX, OsbEasing easing = OsbEasing.None)
+        {
+            var offsetX = 0;
+            foreach(var background in backgroundList)
+            {
+                background.MoveY(easing, startTime, endTime, startX + offsetY, endX + offsetY); 
+                offsetX -= 480;
+            }
+        }
+    }
+}
