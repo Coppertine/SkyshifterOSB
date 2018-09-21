@@ -11,39 +11,54 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
+using System.IO;
 
 namespace StorybrewScripts
 {
     public class CreditsManager : StoryboardObjectGenerator
     {
-        
+        private FontGenerator Font;
         public override void Generate()
         {
-		    GenerateCredit("SAKURABURST", 7687, 15099, 60, 320, 216);
+            
+            Font = SetFont();
+		    GenerateCredit("SAKURABURST", 7687, 15099, 0.5f, 320, 216);
 		    GenerateCredit("SKYSHIFTER VIP", 8040, 15099, 25, 320, 265);
         
         
-            GenerateCredit("BEATMAP", 16158, 23216, 35, 320, 130);
+            GenerateCredit("BEATMAP", 16158, 23216, 0.3f, 320, 130);
         
-            GenerateCredit("STORYBOARD",17569, 23216, 35, 320, 280);
+            GenerateCredit("STORYBOARD",17569, 23216, 0.3f, 320, 280);
         
-            GenerateCredit("SCUBDOMINO & SHIZUKU-", 18981, 23216, 26, 320, 153);
-            GenerateCredit("COPPERTINE - DARKY1 - PONO", 20393, 23216, 26, 320, 303);
+            GenerateCredit("SCUBDOMINO & SHIZUKU-", 18981, 23216, 0.3f, 320, 153);
+            GenerateCredit("COPPERTINE - DARKY1 - PONO", 20393, 23216, 0.3f, 320, 303);
 
-            GenerateCredit("SCUBDOMINO", 51452, 59922, 35, 320, 240);
-            GenerateCredit("SHIZUKU-", 62746, 71922, 35, 320, 240);
+            var partLines = File.ReadAllLines(ProjectPath + "/parts.txt");
+
+            foreach(var line in partLines)
+            {
+                var values = line.Split(';');
+                GeneratePartName(values[0], int.Parse(values[1]), int.Parse(values[2]));
+            }
         }
-
-        private void GenerateCredit(string text, int startTime, int endTime, int size, int posX, int posY)
+        private FontGenerator SetFont()
         {
-            var font = LoadFont("sb/credits/" + startTime, new FontDescription()
+            var font = LoadFont("sb/credits/f", new FontDescription()
             {
                 FontPath = "Roboto-Light.ttf",
-                FontSize = size,
+                FontSize = 60,
                 Color = Color4.White,
                 FontStyle = FontStyle.Regular,
             });
 
+            return font;
+        }
+        private void GeneratePartName(string name, int startTime, int endTime)
+        {
+            GenerateCredit(name, startTime, endTime, 0.3f, -10, 140);
+        }
+        private void GenerateCredit(string text, int startTime, int endTime, float scale, int posX, int posY)
+        {
             List<OsbSprite> letterList = new List<OsbSprite>();
             var currentNumber = letterPicker(0, text.Length);
             var layer = GetLayer("Credits");
@@ -51,11 +66,10 @@ namespace StorybrewScripts
             float letterY = posY;
             var lineWidth = 0f;
             var lineHeight = 0f;
-            var scale = 0.5f;
         
             foreach(var letter in text)
             {
-                var texture = font.GetTexture(letter.ToString());
+                var texture = Font.GetTexture(letter.ToString());
                 lineWidth += texture.BaseWidth * scale;
                 lineHeight = Math.Max(lineHeight, texture.BaseHeight * scale);
 
@@ -63,11 +77,11 @@ namespace StorybrewScripts
                     letterList.Add(layer.CreateSprite(texture.Path));
             }
 
-            letterX = posX - lineWidth * scale;
+            letterX = posX - lineWidth/2;
 
             foreach(var letter in text)
             {
-                var texture = font.GetTexture(letter.ToString());
+                var texture = Font.GetTexture(letter.ToString());
                 var fade = 0f;
                 
                 if(!texture.IsEmpty)
