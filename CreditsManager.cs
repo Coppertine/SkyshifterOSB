@@ -22,8 +22,8 @@ namespace StorybrewScripts
         {
             
             Font = SetFont();
-		    GenerateCredit("SAKURABURST", 7687, 15099, 0.5f, 320, 216);
-		    GenerateCredit("SKYSHIFTER VIP", 8040, 15099, 25, 320, 265);
+            GenerateCredit("SAKURABURST", 7687, 15099, 0.5f, 320, 216);
+            GenerateCredit("SKYSHIFTER VIP", 8040, 15099, 25, 320, 265);
         
         
             GenerateCredit("BEATMAP", 16158, 23216, 0.3f, 320, 130);
@@ -56,7 +56,27 @@ namespace StorybrewScripts
         private void GeneratePartName(string name, int startTime, int endTime)
         {
             GenerateCredit(name, startTime, endTime, 0.3f, 50, 430);
-            GenerateBars(startTime, endTime);
+            if(isKiai(startTime))
+            {
+                GenerateBarsSpectrum(startTime, endTime);
+            }else{
+                GenerateBars(startTime, endTime); 
+            }
+        }
+        
+        private bool isKiai(int startTime)
+        {
+            int[] kiaiTimes = {140393, 162981, 281569, 304158};
+            var isIT = false;
+            foreach (var time in kiaiTimes)
+            {
+               if(time == startTime) 
+               {
+                isIT = true;
+                Log($"Got One At: {time}");
+               }
+            }
+            return isIT;
         }
         private void GenerateBars(int startTime, int endTime)
         {
@@ -75,6 +95,73 @@ namespace StorybrewScripts
                 posX += gap;
             }
         }
+        
+        #region Spectrum
+            private KeyframedValue<float>[] GetKeyframes(int startTime, int endTime)
+            {
+                var heightKeyframes = new KeyframedValue<float>[50];
+                for (var i = 0; i < 50; i++)
+                    heightKeyframes[i] = new KeyframedValue<float>(null);
+                    
+                var fftTimeStep = Beatmap.GetTimingPointAt(startTime).BeatDuration / 4;
+                var fftOffset = fftTimeStep * 0.2;
+                
+                for (var time = (double)startTime; time < endTime; time += fftTimeStep)
+                {
+                    var fft = GetFft(time + fftOffset, 50, null, OsbEasing.InOutSine);
+                    for (var i = 0; i < 50; i++)
+                    {
+                        var height = (float)Math.Log10(1 + fft[i] * 600) * 100;
+                        if (height < 50f) height = (float)Random(50, 100);
+
+                        heightKeyframes[i].Add(time, height);
+                    }
+                }
+                return heightKeyframes;
+            
+            }
+            private void GenerateBarsSpectrum(int startTime, int endTime)
+            {
+                Log("Spectrum generated");
+                var HeightKeyFrames = GetKeyframes(startTime, endTime);
+                float gap = 864/50.0f;
+                float posX = -107;
+                for(int i = 0; i < 50; i++)
+                {
+                    var keyframes = HeightKeyFrames[i];
+                    
+                    keyframes.Simplify1dKeyframes(0.2, h => h);
+                    
+                                
+                    var scale = Random(50, 100);
+                    var addScale = Random(-10, 10);
+                    var fade = Random(0.6, 0.9);
+                    var sprite = GetLayer("CreditsBackground").CreateSprite("sb/pixel.png", OsbOrigin.BottomLeft, new Vector2(posX, 480));
+                    
+                    var hasScale = false;
+                    keyframes.ForEachPair(
+                        (start, end) =>
+                        {
+                            hasScale = true;
+                            sprite.ScaleVec(OsbEasing.InOutSine,start.Time, end.Time,
+                                gap, start.Value,
+                                gap, end.Value);
+                        },
+                        50,
+                        s => (float)Math.Round(s, 2)
+                    );
+                if (!hasScale) sprite.ScaleVec(startTime, gap, 12);
+                
+                //sprite.ScaleVec(OsbEasing.InOutSine, startTime + 300, endTime, gap, scale, gap, scale + addScale);
+
+                    sprite.Fade(startTime + i * 10, (startTime + i * 10) + 300, 0, fade);
+                    sprite.Fade(endTime + i * 10, (endTime + i * 10) + 300, fade, 0);
+                    sprite.Color(startTime, 0.1, 0.1, 0.1);
+                    posX += gap;
+                }
+            }
+        #endregion
+        
         private void GenerateCredit(string text, int startTime, int endTime, float scale, int posX, int posY)
         {
             List<OsbSprite> letterList = new List<OsbSprite>();
