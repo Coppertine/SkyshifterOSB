@@ -26,7 +26,7 @@ namespace StorybrewScripts
         public int ShadowThickness = 2;
         public Color4 ShadowColor = new Color4(0, 0, 0, 255);
         public Vector2 Padding = Vector2.Zero;
-        public float SubtitleY = 400;
+        public float SubtitleY = 240;
         public bool TrimTransparency = true;
         public OsbOrigin Origin = OsbOrigin.Centre;
 

@@ -265,7 +265,7 @@ namespace StorybrewScripts
                 var width = i % 2 == 0 ? 600 : 600;
                 var height = off + (i % 2 == 0 ? 140 : 864 / 2f);
 
-                var sprite = layer.CreateSprite("sb/pixel.png", OsbOrigin.TopCentre);
+                var sprite = GetLayer("TransitionFront").CreateSprite("sb/pixel.png", OsbOrigin.TopCentre);
                 sprite.Move(OsbEasing.InOutSine, time, time + 22058, positions[i], Vector2.Lerp(positions[i], positions[i == 3 ? 0 : (i + 1)], 0.5f));
                 sprite.Rotate(time, time + 22058, Math.PI / 2f * i - Math.PI / 4f, Math.PI / 2f * i);
                 sprite.ScaleVec(OsbEasing.InCirc, time, time + 22058, width, off * 1.4f, width, height);
