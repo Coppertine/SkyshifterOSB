@@ -55,7 +55,25 @@ namespace StorybrewScripts
         }
         private void GeneratePartName(string name, int startTime, int endTime)
         {
-            GenerateCredit(name, startTime, endTime, 0.3f, -10, 140);
+            GenerateCredit(name, startTime, endTime, 0.3f, 50, 430);
+            GenerateBars(startTime, endTime);
+        }
+        private void GenerateBars(int startTime, int endTime)
+        {
+            float gap = 864/50.0f;
+            float posX = -107;
+            for(int i = 0; i < 50; i++)
+            {
+                var scale = Random(50, 100);
+                var addScale = Random(-10, 10);
+                var fade = Random(0.6, 0.9);
+                var sprite = GetLayer("CreditsBackground").CreateSprite("sb/pixel.png", OsbOrigin.BottomLeft, new Vector2(posX, 480));
+                sprite.ScaleVec(OsbEasing.InOutSine, startTime + 300, endTime, gap, scale, gap, scale + addScale);
+                sprite.Fade(startTime + i * 10, (startTime + i * 10) + 300, 0, fade);
+                sprite.Fade(endTime + i * 10, (endTime + i * 10) + 300, fade, 0);
+                sprite.Color(startTime, 0.1, 0.1, 0.1);
+                posX += gap;
+            }
         }
         private void GenerateCredit(string text, int startTime, int endTime, float scale, int posX, int posY)
         {
@@ -123,7 +141,6 @@ namespace StorybrewScripts
                 return n;
             }
         }
-
         private void spawnCharacter(int spriteIndex, double startTime, double endTime, Vector2 position, float scale, float Fade, List<OsbSprite> letterList)
         {
             var sprite = GetLayer("").CreateSprite(letterList[spriteIndex].TexturePath, OsbOrigin.Centre, position);
