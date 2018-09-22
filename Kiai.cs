@@ -52,7 +52,7 @@ namespace StorybrewScripts
 
             var vignette = layer.CreateSprite("sb/vig.png"); //TODO remove this sprite in favor of a global vignette manager 
             vignette.Scale(117805, 480.0f/1080);
-            vignette.Fade(117805, .9f);
+            vignette.Fade(OsbEasing.OutExpo,117805, 118511,0, .9f);
             vignette.Fade(184158 + 1411, 0f);
 
             vignette.Fade(281569, .9f);
